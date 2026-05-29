@@ -9,6 +9,7 @@ The Streamlit app will then load the index instantly on startup.
 
 import sys
 import logging
+
 from rag_pipeline import build_index
 
 logger = logging.getLogger(__name__)
@@ -16,9 +17,12 @@ logger = logging.getLogger(__name__)
 
 def main() -> int:
     try:
-        vectorstore = build_index()
-        # FAISS exposes the internal index; .ntotal gives vector count
-        logger.info("✓ Index built successfully with %d vectors", vectorstore.index.ntotal)
+        # FIX #10: build_index() now returns (vectorstore, chunk_count) so we
+        # can log the vector count without reaching into the internal
+        # vectorstore.index.ntotal attribute, which is undocumented and fragile
+        # across LangChain versions.
+        vectorstore, chunk_count = build_index()
+        logger.info("✓ Index built successfully with %d vectors", chunk_count)
         return 0
     except FileNotFoundError as exc:
         logger.error("✗ %s", exc)
