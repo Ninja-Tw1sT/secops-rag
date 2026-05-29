@@ -88,13 +88,13 @@ if ! curl -sf http://localhost:11434/api/tags >/dev/null 2>&1; then
 fi
 ok "Ollama daemon responding"
 
-# wget (for PDF downloads) — non-fatal, we'll fall back to curl
-if command -v wget &>/dev/null; then
-    DOWNLOADER="wget -q --show-progress -O"
-elif command -v curl &>/dev/null; then
-    DOWNLOADER="curl -sSL -o"
+# curl with --fail to hard-error on HTTP 4xx/5xx (prevents 0-byte file bug)
+if command -v curl &>/dev/null; then
+    DOWNLOADER="curl -fLA Mozilla/5.0 --max-time 60 -o"
+elif command -v wget &>/dev/null; then
+    DOWNLOADER="wget -q --tries=2 --timeout=60 --content-on-error=off -O"
 else
-    warn "Neither wget nor curl found. PDF auto-download will be skipped."
+    warn "Neither curl nor wget found. PDF auto-download will be skipped."
     SKIP_PDFS=true
 fi
 
@@ -213,7 +213,7 @@ mkdir -p data/sources
 
 PDFS=(
     "https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf|nist-csf-2.0.pdf"
-    "https://owasp.org/Top10/assets/OWASP_Top_10-2021.pdf|owasp-top-10-2021.pdf"
+    "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf|nist-sp-800-61r2.pdf"
 )
 
 if [ "$SKIP_PDFS" = true ]; then
@@ -229,13 +229,15 @@ else
             continue
         fi
         log "Downloading $filename..."
-        if $DOWNLOADER "$target" "$url" 2>/dev/null; then
-            # Verify it's a real PDF (starts with %PDF)
-            if head -c 4 "$target" | grep -q '%PDF'; then
-                ok "Downloaded $filename"
+        if $DOWNLOADER "$target" "$url"; then
+            # Validate: must be a real PDF (magic bytes) AND non-trivial size
+            SIZE=$(stat -c%s "$target" 2>/dev/null || echo 0)
+            MAGIC=$(head -c 4 "$target" 2>/dev/null)
+            if [ "$MAGIC" = "%PDF" ] && [ "$SIZE" -gt 10000 ]; then
+                ok "Downloaded $filename ($((SIZE/1024)) KB)"
             else
-                warn "$filename downloaded but isn't a valid PDF — removing."
                 rm -f "$target"
+                die "Downloaded $filename failed validation (size=$SIZE bytes, magic=$MAGIC). The source URL may be dead. Drop a valid PDF into data/sources/ manually or use --skip-pdfs."
             fi
         else
             warn "Could not download $filename (skipping). Add manually if needed."
