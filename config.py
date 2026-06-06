@@ -11,23 +11,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Provider selection: "ollama" (default, local), "groq", or "openai".
-# Embeddings stay local on Ollama regardless of LLM provider, so the document
-# corpus is never sent to a cloud provider during ingestion.
-LLM_PROVIDER = os.getenv("LLM_PROVIDER", "ollama").lower().strip()
-
-# Ollama settings (default LLM path, always used for embeddings)
+# Ollama settings
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 LLM_MODEL = os.getenv("LLM_MODEL", "llama3.1:8b")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
-
-# Cloud LLM credentials (only used when LLM_PROVIDER is set accordingly).
-# These MUST be loaded from environment, never hardcoded or accepted via UI.
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-70b-versatile")
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 # Retrieval tuning
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "1000"))

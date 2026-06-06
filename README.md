@@ -100,7 +100,7 @@ That single command:
 3. Creates a `.venv` and installs all pinned dependencies.
 4. Verifies all critical imports succeed.
 5. Copies `.env.example` → `.env` if not already present.
-6. Downloads starter PDFs (NIST CSF 2.0, NIST SP 800-61r2) into `data/sources/`.
+6. Downloads starter PDFs (NIST CSF 2.0, OWASP Top 10) into `data/sources/`.
 7. Builds the FAISS index.
 8. Runs a smoke test through the full pipeline.
 
@@ -148,7 +148,7 @@ Suggested starter corpus (all public):
 - [NIST Cybersecurity Framework 2.0](https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf)
 - [NIST SP 800-53 Rev. 5](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf)
 - [CIS Critical Security Controls v8.1](https://www.cisecurity.org/controls)
-- [NIST SP 800-61 Rev. 2 (Incident Handling Guide)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf)
+- [OWASP Top 10 (2021)](https://owasp.org/Top10/)
 
 </details>
 
@@ -159,7 +159,7 @@ Suggested starter corpus (all public):
 1. **Show the privacy guarantee**: open Ollama logs, point out no outbound HTTPS to OpenAI/Anthropic.
 2. **In-corpus question**: *"What are the six functions of the NIST Cybersecurity Framework 2.0?"* → grounded answer with citation to the CSF PDF.
 3. **Out-of-corpus question**: *"What's the latest Kubernetes CVE?"* → graceful refusal.
-4. **Cross-document question**: *"How does NIST CSF's Respond function map to the incident handling phases in NIST SP 800-61?"* → synthesis with citations from both PDFs.
+4. **Cross-document question**: *"Which OWASP Top 10 risks relate to NIST CSF's Protect function?"* → synthesis with citations from both PDFs.
 5. **Show citations panel**: click the 📎 expander to verify each claim against the retrieved chunk.
 
 ---

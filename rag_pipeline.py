@@ -25,9 +25,6 @@ from langchain_core.documents import Document
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# Cloud LLM imports are deferred to get_llm() so missing optional packages
-# don't break the default Ollama path.
-
 import config
 
 logger = logging.getLogger(__name__)
@@ -46,66 +43,12 @@ def get_embeddings() -> OllamaEmbeddings:
     )
 
 
-def get_llm():
-    """Return the chat LLM based on LLM_PROVIDER env var.
-
-    Supported providers:
-      - "ollama" (default): fully local via Ollama. Privacy-preserving.
-      - "groq":   fast cloud inference. Requires GROQ_API_KEY.
-      - "openai": cloud inference. Requires OPENAI_API_KEY.
-
-    Temperature kept low (0.1) for factual, grounded InfoSec answers.
-
-    The Ollama path sets num_gpu=0 by default to avoid Vulkan-backend
-    token corruption observed on shared boxes with OLLAMA_VULKAN=1 at the
-    daemon level. Override via LLM_NUM_GPU in .env if your GPU works.
-    """
-    provider = config.LLM_PROVIDER
-
-    if provider == "groq":
-        if not config.GROQ_API_KEY:
-            raise RuntimeError(
-                "LLM_PROVIDER=groq but GROQ_API_KEY is not set. "
-                "Get a free key at https://console.groq.com and add it to .env."
-            )
-        try:
-            from langchain_groq import ChatGroq
-        except ImportError as e:
-            raise RuntimeError(
-                "langchain-groq not installed. Run: pip install langchain-groq"
-            ) from e
-        return ChatGroq(
-            model=config.GROQ_MODEL,
-            api_key=config.GROQ_API_KEY,
-            temperature=config.TEMPERATURE,
-        )
-
-    if provider == "openai":
-        if not config.OPENAI_API_KEY:
-            raise RuntimeError(
-                "LLM_PROVIDER=openai but OPENAI_API_KEY is not set. "
-                "Get a key at https://platform.openai.com/api-keys and add it to .env."
-            )
-        try:
-            from langchain_openai import ChatOpenAI
-        except ImportError as e:
-            raise RuntimeError(
-                "langchain-openai not installed. Run: pip install langchain-openai"
-            ) from e
-        return ChatOpenAI(
-            model=config.OPENAI_MODEL,
-            api_key=config.OPENAI_API_KEY,
-            temperature=config.TEMPERATURE,
-        )
-
-    # Default: Ollama (local)
-    import os
-    num_gpu = int(os.getenv("LLM_NUM_GPU", "0"))
+def get_llm() -> ChatOllama:
+    """Return the chat LLM. Temperature kept low for factual InfoSec answers."""
     return ChatOllama(
         model=config.LLM_MODEL,
         base_url=config.OLLAMA_BASE_URL,
         temperature=config.TEMPERATURE,
-        num_gpu=num_gpu,
     )
 
 
