@@ -154,16 +154,6 @@ Suggested starter corpus (all public):
 
 ---
 
-## 🧪 Demo flow (use this for your video / interview)
-
-1. **Show the privacy guarantee**: open Ollama logs, point out no outbound HTTPS to OpenAI/Anthropic.
-2. **In-corpus question**: *"What are the six functions of the NIST Cybersecurity Framework 2.0?"* → grounded answer with citation to the CSF PDF.
-3. **Out-of-corpus question**: *"What's the latest Kubernetes CVE?"* → graceful refusal.
-4. **Cross-document question**: *"Which OWASP Top 10 risks relate to NIST CSF's Protect function?"* → synthesis with citations from both PDFs.
-5. **Show citations panel**: click the 📎 expander to verify each claim against the retrieved chunk.
-
----
-
 ## 🗺️ Roadmap
 
 This RAG chatbot is the foundation for a broader **AI-for-InfoSec portfolio**:
